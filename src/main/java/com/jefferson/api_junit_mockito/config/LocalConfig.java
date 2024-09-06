@@ -1,7 +1,7 @@
 package com.jefferson.api_junit_mockito.config;
 
 import com.jefferson.api_junit_mockito.domain.UserModel;
-import com.jefferson.api_junit_mockito.repository.UserRepository;
+import com.jefferson.api_junit_mockito.repositories.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

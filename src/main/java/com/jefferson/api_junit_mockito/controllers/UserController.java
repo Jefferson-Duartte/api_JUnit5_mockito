@@ -1,8 +1,7 @@
-package com.jefferson.api_junit_mockito.controller;
+package com.jefferson.api_junit_mockito.controllers;
 
-import com.jefferson.api_junit_mockito.domain.UserModel;
-import com.jefferson.api_junit_mockito.domain.dto.UserDTO;
-import com.jefferson.api_junit_mockito.service.UserService;
+import com.jefferson.api_junit_mockito.domain.dtos.UserDTO;
+import com.jefferson.api_junit_mockito.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.jefferson.api_junit_mockito.domain.dto;
+package com.jefferson.api_junit_mockito.domain.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.jefferson.api_junit_mockito.exception;
+package com.jefferson.api_junit_mockito.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

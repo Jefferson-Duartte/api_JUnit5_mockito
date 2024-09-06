@@ -1,7 +1,7 @@
-package com.jefferson.api_junit_mockito.exception.handler;
+package com.jefferson.api_junit_mockito.exceptions.handlers;
 
-import com.jefferson.api_junit_mockito.exception.ExceptionResponse;
-import com.jefferson.api_junit_mockito.exception.ObjectNotFoundException;
+import com.jefferson.api_junit_mockito.exceptions.ExceptionResponse;
+import com.jefferson.api_junit_mockito.exceptions.ObjectNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
