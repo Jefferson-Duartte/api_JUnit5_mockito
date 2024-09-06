@@ -3,7 +3,6 @@ package com.jefferson.api_junit_mockito.config;
 import com.jefferson.api_junit_mockito.domain.UserModel;
 import com.jefferson.api_junit_mockito.repositories.UserRepository;
 import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
@@ -13,8 +12,11 @@ import java.util.List;
 @Profile("local")
 public class LocalConfig {
 
-    @Autowired
-    private UserRepository repository;
+    private final UserRepository repository;
+
+    public LocalConfig(UserRepository repository) {
+        this.repository = repository;
+    }
 
     @PostConstruct
     public void startDB(){
