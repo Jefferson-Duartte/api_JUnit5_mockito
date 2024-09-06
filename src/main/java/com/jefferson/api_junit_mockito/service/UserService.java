@@ -1,4 +1,4 @@
-package com.jefferson.api_junit_mockito.services;
+package com.jefferson.api_junit_mockito.service;
 
 import com.jefferson.api_junit_mockito.domain.UserModel;
 

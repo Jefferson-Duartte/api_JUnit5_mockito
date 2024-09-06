@@ -1,4 +1,4 @@
-package com.jefferson.api_junit_mockito.repositories;
+package com.jefferson.api_junit_mockito.repository;
 
 import com.jefferson.api_junit_mockito.domain.UserModel;
 import org.springframework.data.jpa.repository.JpaRepository;
