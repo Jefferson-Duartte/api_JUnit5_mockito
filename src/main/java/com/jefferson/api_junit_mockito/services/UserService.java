@@ -1,7 +1,7 @@
 package com.jefferson.api_junit_mockito.services;
 
-import com.jefferson.api_junit_mockito.domain.User;
+import com.jefferson.api_junit_mockito.domain.UserModel;
 
 public interface UserService {
-    User findUserById(Long id);
+    UserModel findById(Long id);
 }
