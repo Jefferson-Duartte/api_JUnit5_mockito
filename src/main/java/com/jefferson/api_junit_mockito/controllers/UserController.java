@@ -1,4 +1,4 @@
-package com.jefferson.api_junit_mockito.controller;
+package com.jefferson.api_junit_mockito.controllers;
 
 import com.jefferson.api_junit_mockito.domain.User;
 import org.springframework.http.ResponseEntity;
