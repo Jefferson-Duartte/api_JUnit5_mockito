@@ -12,6 +12,8 @@ public interface UserService {
 
     UserModel save(UserDTO obj);
 
+    UserModel update(UserDTO obj);
+
     void delete(Long id);
 
 }
