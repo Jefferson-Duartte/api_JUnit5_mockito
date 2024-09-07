@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
+    public static final String ID = "/{id}";
     private final ModelMapper mapper;
     private final UserService service;
 
@@ -22,7 +23,7 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = ID)
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok().body(mapper.map(service.findById(id), UserDTO.class));
     }
@@ -35,8 +36,14 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDTO> save(@RequestBody UserDTO obj) {
         URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequestUri().path("/{id}").buildAndExpand(service.save(obj).getId()).toUri();
+                .fromCurrentRequestUri().path(ID).buildAndExpand(service.save(obj).getId()).toUri();
         return ResponseEntity.created(uri).build();
+    }
+
+    @DeleteMapping(ID)
+    public ResponseEntity<UserDTO> delete(@PathVariable Long id){
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
