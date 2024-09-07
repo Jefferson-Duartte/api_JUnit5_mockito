@@ -14,25 +14,29 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ObjectNotFoundException.class)
-    public ResponseEntity<ExceptionResponse> objectNotFound(ObjectNotFoundException exception, HttpServletRequest request) {
+    private ResponseEntity<ExceptionResponse> buildResponseEntity(Exception exception,
+                                                                  HttpStatus status,
+                                                                  HttpServletRequest request) {
+
         ExceptionResponse exceptionResponse = new ExceptionResponse(
                 LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
+                status.value(),
                 exception.getMessage(),
                 request.getRequestURI());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse);
+        return ResponseEntity.status(status).body(exceptionResponse);
+    }
+
+    @ExceptionHandler(ObjectNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> objectNotFound(
+            ObjectNotFoundException exception,
+            HttpServletRequest request) {
+        return buildResponseEntity(exception, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ExceptionResponse> dataIntegrityViolationException(DataIntegrityViolationException exception, HttpServletRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                exception.getMessage(),
-                request.getRequestURI());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+    public ResponseEntity<ExceptionResponse> dataIntegrityViolationException(
+            DataIntegrityViolationException exception,
+            HttpServletRequest request) {
+        return buildResponseEntity(exception, HttpStatus.BAD_REQUEST, request);
     }
-
 }
