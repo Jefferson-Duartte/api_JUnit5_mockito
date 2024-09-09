@@ -1,6 +1,7 @@
 package com.jefferson.api_junit_mockito.services.impl;
 
 import com.jefferson.api_junit_mockito.domain.UserModel;
+import com.jefferson.api_junit_mockito.exceptions.ObjectNotFoundException;
 import com.jefferson.api_junit_mockito.repositories.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,7 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -34,6 +36,8 @@ class UserServiceImplTest {
     @Nested
     class findById {
 
+        public static final String OBJECT_NOT_FOUND_MESSAGE = "Objeto não encontrado.";
+
         @Test
         @DisplayName("Should get user by id with success")
         void shouldGetUserByIdWithSuccess() {
@@ -47,24 +51,25 @@ class UserServiceImplTest {
             var output = service.findById(user.getId());
 
             //Assert
-            assertNotNull(output);
-            assertEquals(UserModel.class, output.getClass());
-            assertEquals(user.getId(), longArgumentCaptor.getValue());
-            assertEquals(user.getName(), output.getName());
-            assertEquals(user.getEmail(), output.getEmail());
-
+            assertThat(longArgumentCaptor.getValue()).isEqualTo(user.getId());
+            assertThat(output).isNotNull();
+            assertThat(output.getClass()).isEqualTo(UserModel.class);
+            assertThat(user.getName()).isEqualTo(output.getName());
+            assertThat(user.getEmail()).isEqualTo(output.getEmail());
 
         }
 
         @Test
-        @DisplayName("Should throw exception when error occurs")
-        void shouldThrowExceptionWhenErrorOcurred() {
+        @DisplayName("Should throw ObjectNotFoundException when user is not found")
+        void shouldThrowObjectNotFoundExceptionWhenUserNotFound() {
 
             //Arrange
-            doThrow(RuntimeException.class).when(repository).findById(any());
+            doThrow(new ObjectNotFoundException(OBJECT_NOT_FOUND_MESSAGE)).when(repository).findById(any());
 
             //Act & Assert
-            assertThrows(RuntimeException.class, () -> service.findById(1L));
+            assertThatThrownBy(() -> service.findById(212L))
+                    .isInstanceOf(ObjectNotFoundException.class)
+                    .hasMessageContaining(OBJECT_NOT_FOUND_MESSAGE);
 
         }
 
