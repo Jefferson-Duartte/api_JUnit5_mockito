@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,10 @@ class UserServiceImplTest {
     @Captor
     private ArgumentCaptor<Long> longArgumentCaptor;
 
+    private UserModel createUser() {
+        return new UserModel(1L, "Jefferson", "jefferson@mail.com", "1234");
+    }
+
     @Nested
     class findById {
 
@@ -43,7 +48,7 @@ class UserServiceImplTest {
         void shouldGetUserByIdWithSuccess() {
 
             //Arrange
-            var user = new UserModel(1L, "Jefferson", "jeff@mail.com", "123");
+            var user = createUser();
 
             doReturn(Optional.of(user)).when(repository).findById(longArgumentCaptor.capture());
 
@@ -75,6 +80,36 @@ class UserServiceImplTest {
 
     }
 
+
+    @Nested
+    class findAll {
+
+        @Test
+        @DisplayName("Should return all users with success")
+        void shouldReturnAllUserWithSuccess() {
+
+            //Arrange
+            var user = createUser();
+
+            doReturn(List.of(user)).when(repository).findAll();
+            //Act
+
+            var output = service.findAll();
+
+            //Assert
+
+            assertThat(output)
+                    .isNotNull()
+                    .hasSize(1);
+
+            assertThat(UserModel.class).isEqualTo(output.getFirst().getClass());
+            assertThat(output.get(0))
+                    .extracting(UserModel::getId, UserModel::getName, UserModel::getEmail, UserModel::getPassword)
+                    .containsExactly(user.getId(), user.getName(), user.getEmail(), user.getPassword());
+
+        }
+
+    }
 
     @Test
     void findAll() {
