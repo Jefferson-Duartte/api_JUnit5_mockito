@@ -3,6 +3,7 @@ package com.jefferson.api_junit_mockito.services.impl;
 import com.jefferson.api_junit_mockito.domain.UserModel;
 import com.jefferson.api_junit_mockito.exceptions.ObjectNotFoundException;
 import com.jefferson.api_junit_mockito.repositories.UserRepository;
+import org.apache.catalina.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,8 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
@@ -39,7 +39,7 @@ class UserServiceImplTest {
     }
 
     @Nested
-    class findById {
+    class FindById {
 
         public static final String OBJECT_NOT_FOUND_MESSAGE = "Objeto não encontrado.";
 
@@ -57,11 +57,13 @@ class UserServiceImplTest {
 
             //Assert
             assertThat(longArgumentCaptor.getValue()).isEqualTo(user.getId());
-            assertThat(output).isNotNull();
-            assertThat(output.getClass()).isEqualTo(UserModel.class);
-            assertThat(user.getName()).isEqualTo(output.getName());
-            assertThat(user.getEmail()).isEqualTo(output.getEmail());
+            assertThat(output)
+                    .isNotNull()
+                    .isInstanceOf(UserModel.class)
+                    .extracting(UserModel::getName, UserModel::getEmail)
+                    .containsExactly(user.getName(), user.getEmail());
 
+            verify(repository, times(1)).findById(user.getId());
         }
 
         @Test
@@ -75,14 +77,11 @@ class UserServiceImplTest {
             assertThatThrownBy(() -> service.findById(212L))
                     .isInstanceOf(ObjectNotFoundException.class)
                     .hasMessageContaining(OBJECT_NOT_FOUND_MESSAGE);
-
         }
-
     }
 
-
     @Nested
-    class findAll {
+    class FindAll {
 
         @Test
         @DisplayName("Should return all users with success")
@@ -90,29 +89,22 @@ class UserServiceImplTest {
 
             //Arrange
             var user = createUser();
-
             doReturn(List.of(user)).when(repository).findAll();
-            //Act
 
+            //Act
             var output = service.findAll();
 
             //Assert
-
             assertThat(output)
                     .isNotNull()
-                    .hasSize(1);
-
-            assertThat(UserModel.class).isEqualTo(output.getFirst().getClass());
-            assertThat(output.get(0))
+                    .hasSize(1)
+                    .first()
+                    .isInstanceOf(UserModel.class)
                     .extracting(UserModel::getId, UserModel::getName, UserModel::getEmail, UserModel::getPassword)
                     .containsExactly(user.getId(), user.getName(), user.getEmail(), user.getPassword());
 
+            verify(repository, times(1)).findAll();
         }
-
-    }
-
-    @Test
-    void findAll() {
     }
 
     @Test
