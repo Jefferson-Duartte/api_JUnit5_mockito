@@ -1,9 +1,11 @@
 package com.jefferson.api_junit_mockito.services.impl;
 
 import com.jefferson.api_junit_mockito.domain.UserModel;
+import com.jefferson.api_junit_mockito.domain.dtos.UserDTO;
+import com.jefferson.api_junit_mockito.exceptions.DataIntegrityViolationException;
 import com.jefferson.api_junit_mockito.exceptions.ObjectNotFoundException;
 import com.jefferson.api_junit_mockito.repositories.UserRepository;
-import org.apache.catalina.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,11 +34,29 @@ class UserServiceImplTest {
     @Mock
     private UserRepository repository;
 
+    @Mock
+    private UserModel user;
+
+    @Mock
+    private UserDTO userDTO;
+
+    @Mock
+    private ModelMapper mapper;
+
     @Captor
     private ArgumentCaptor<Long> longArgumentCaptor;
 
-    private UserModel createUser() {
-        return new UserModel(1L, "Jefferson", "jefferson@mail.com", "1234");
+    @Captor
+    private ArgumentCaptor<UserModel> userModelArgumentCaptor;
+
+    @BeforeEach
+    void setup() {
+        createUsers();
+    }
+
+    void createUsers() {
+        user = new UserModel(1L, "Jefferson", "jefferson@mail.com", "1234");
+        userDTO = new UserDTO(1L, "Jefferson", "jefferson@mail.com", "1234");
     }
 
     @Nested
@@ -48,8 +69,6 @@ class UserServiceImplTest {
         void shouldGetUserByIdWithSuccess() {
 
             //Arrange
-            var user = createUser();
-
             doReturn(Optional.of(user)).when(repository).findById(longArgumentCaptor.capture());
 
             //Act
@@ -88,7 +107,6 @@ class UserServiceImplTest {
         void shouldReturnAllUserWithSuccess() {
 
             //Arrange
-            var user = createUser();
             doReturn(List.of(user)).when(repository).findAll();
 
             //Act
@@ -107,8 +125,40 @@ class UserServiceImplTest {
         }
     }
 
-    @Test
-    void save() {
+    @Nested
+    class Create {
+
+        @Test
+        @DisplayName("Should create an user with success")
+        void shouldCreateAnUserWithSuccess() {
+
+            //Arrange
+            doReturn(user).when(repository).save(any());
+
+            //Act
+            var output = service.save(userDTO);
+
+            //Assert
+            assertThat(output)
+                    .isNotNull()
+                    .isInstanceOf(UserModel.class)
+                    .extracting(UserModel::getName, UserModel::getEmail)
+                    .containsExactly(user.getName(), user.getEmail());
+        }
+
+        @Test
+        @DisplayName("Should throw DataIntegrityViolationException when error occurs")
+        void shouldThrowExceptionWhenErrorOccurs() {
+
+            //Arrange
+            doThrow(new DataIntegrityViolationException("Email já cadastrado no sistema.")).when(repository).save(any());
+
+            //Act & Assert
+            assertThatThrownBy(() -> service.save(userDTO))
+                    .isInstanceOf(DataIntegrityViolationException.class)
+                    .hasMessageContaining("Email já cadastrado no sistema.");
+
+        }
     }
 
     @Test
