@@ -49,8 +49,7 @@ class UserServiceImplTest {
     @Captor
     private ArgumentCaptor<Long> longArgumentCaptor;
 
-    @Captor
-    private ArgumentCaptor<UserModel> userModelArgumentCaptor;
+    public final String OBJECT_NOT_FOUND_MESSAGE = "Objeto não encontrado.";
 
     @BeforeEach
     void setup() {
@@ -66,7 +65,6 @@ class UserServiceImplTest {
     @Nested
     class FindById {
 
-        public static final String OBJECT_NOT_FOUND_MESSAGE = "Objeto não encontrado.";
 
         @Test
         @DisplayName("Should get user by id with success")
@@ -205,8 +203,36 @@ class UserServiceImplTest {
 
     }
 
+    @Nested
+    class Delete{
 
-    @Test
-    void delete() {
+        @Test
+        @DisplayName("Should delete user with success")
+        void shouldDeleteUserWithSuccess(){
+
+            //Arrange
+            doReturn(optionalUser).when(repository).findById(anyLong());
+            doNothing().when(repository).deleteById(anyLong());
+
+            //Act
+            service.delete(user.getId());
+
+            //Assert
+            verify(repository, times(1)).deleteById(anyLong());
+
+        }
+
+        @Test
+        @DisplayName("Should throw ObjectNotFoundException when user is not found in delete method")
+        void shouldThrowObjectNotFoundExceptionWhenUserNotFound() {
+
+            //Arrange
+            doThrow(new ObjectNotFoundException(OBJECT_NOT_FOUND_MESSAGE)).when(repository).findById(anyLong());
+            //Act & Assert
+            assertThatThrownBy(() -> service.delete(212L))
+                    .isInstanceOf(ObjectNotFoundException.class)
+                    .hasMessageContaining(OBJECT_NOT_FOUND_MESSAGE);
+        }
+
     }
 }
