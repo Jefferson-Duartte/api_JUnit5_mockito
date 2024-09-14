@@ -41,6 +41,9 @@ class UserServiceImplTest {
     private UserDTO userDTO;
 
     @Mock
+    private Optional<UserModel> optionalUser;
+
+    @Mock
     private ModelMapper mapper;
 
     @Captor
@@ -57,6 +60,7 @@ class UserServiceImplTest {
     void createUsers() {
         user = new UserModel(1L, "Jefferson", "jefferson@mail.com", "1234");
         userDTO = new UserDTO(1L, "Jefferson", "jefferson@mail.com", "1234");
+        optionalUser = Optional.of(user);
     }
 
     @Nested
@@ -147,23 +151,60 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("Should throw DataIntegrityViolationException when error occurs")
-        void shouldThrowExceptionWhenErrorOccurs() {
+        @DisplayName("Should throw DataIntegrityViolationException when email is already in use")
+        void shouldThrowExceptionWhenEmailIsAlreadyInUse() {
 
             //Arrange
-            doThrow(new DataIntegrityViolationException("Email já cadastrado no sistema.")).when(repository).save(any());
+            doReturn(optionalUser).when(repository).findByEmail(userDTO.getEmail());
 
             //Act & Assert
-            assertThatThrownBy(() -> service.save(userDTO))
+            assertThatThrownBy(() -> service.findByEmail(userDTO))
                     .isInstanceOf(DataIntegrityViolationException.class)
                     .hasMessageContaining("Email já cadastrado no sistema.");
 
         }
     }
 
-    @Test
-    void update() {
+    @Nested
+    class Update{
+
+        @Test
+        @DisplayName("Should update an user with success")
+        void shouldUpdateAnUserWithSuccess(){
+
+            //Arrange
+            doReturn(user).when(mapper).map(userDTO, UserModel.class);
+            doReturn(optionalUser).when(repository).findById(user.getId());
+            doReturn(user).when(repository).save(user);
+
+            //Act
+            var output = service.update(userDTO);
+
+            //Assert
+            assertThat(output)
+                    .isNotNull()
+                    .isInstanceOf(UserModel.class)
+                    .extracting(UserModel::getId, UserModel::getEmail)
+                    .containsExactly(user.getId(), user.getEmail());
+
+        }
+
+        @Test
+        @DisplayName("Should throw DataIntegrityViolationException when email is already in use in update method")
+        void shouldThrowExceptionWhenEmailIsAlreadyInUseInUpdateMethod() {
+
+            //Arrange
+            doReturn(optionalUser).when(repository).findByEmail(userDTO.getEmail());
+
+            //Act & Assert
+            assertThatThrownBy(() -> service.findByEmail(userDTO))
+                    .isInstanceOf(DataIntegrityViolationException.class)
+                    .hasMessageContaining("Email já cadastrado no sistema.");
+
+        }
+
     }
+
 
     @Test
     void delete() {
